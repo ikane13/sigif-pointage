@@ -1,0 +1,154 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+
+  &:focus-visible {
+    outline: 2px solid #0047AB;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  // ============================================
+  // VARIANTS
+  // ============================================
+  &.primary {
+    background-color: #0047AB;
+    color: #FFFFFF;
+
+    &:hover:not(:disabled) {
+      background-color: #0052C9;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #003380;
+    }
+  }
+
+  &.secondary {
+    background-color: transparent;
+    color: #0047AB;
+    border: 2px solid #0047AB;
+
+    &:hover:not(:disabled) {
+      background-color: #E8F0FF;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #D1E3FF;
+    }
+  }
+
+  &.danger {
+    background-color: #DC3545;
+    color: #FFFFFF;
+
+    &:hover:not(:disabled) {
+      background-color: #C82333;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #BD2130;
+    }
+  }
+
+  &.ghost {
+    background-color: transparent;
+    color: #0047AB;
+    padding-left: 0;
+    padding-right: 0;
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+  }
+
+  // ============================================
+  // SIZES
+  // ============================================
+  &.sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-height: 2rem;
+  }
+
+  &.md {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-height: 2.5rem;
+  }
+
+  &.lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    min-height: 3rem;
+  }
+
+  // ============================================
+  // FULL WIDTH
+  // ============================================
+  &.fullWidth {
+    width: 100%;
+  }
+
+  // ============================================
+  // LOADING STATE
+  // ============================================
+  &.loading {
+    pointer-events: none;
+
+    .content {
+      opacity: 0.7;
+    }
+  }
+
+  // ============================================
+  // ICON POSITION
+  // ============================================
+  &.iconRight {
+    flex-direction: row-reverse;
+  }
+}
+
+// ============================================
+// SPINNER
+// ============================================
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================
+// CONTENT WRAPPER
+// ============================================
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

@@ -1,0 +1,157 @@
+.container {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.content {
+  max-width: 720px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.header {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden; /* OK pour les coins arrondis, mais on gère l'image correctement */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.banner {
+  width: 100%;
+  height: 170px;          /* ajuste 120-180 selon ton rendu */
+  display: block;
+
+  /* Remplit tout le bloc */
+  object-fit: cover;
+
+  /* On privilégie le haut de l'image (évite de couper le texte du haut) */
+  object-position: center top;
+
+  background: #ffffff;
+}
+
+
+/* .banner {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+
+  @media (max-width: 640px) {
+    height: 90px;
+  }
+} */
+
+.headerInner {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.logo {
+  width: 76px;
+  height: auto;
+  display: block;
+}
+
+.headerText {
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0b1f3a;
+    margin: 0;
+  }
+
+  p {
+    margin: 0.25rem 0 0 0;
+    color: #5a6b7d;
+    font-size: 0.95rem;
+  }
+}
+
+.eventInfo {
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0b1f3a;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .eventMeta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .metaItem {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #344054;
+    font-size: 0.95rem;
+
+    svg {
+      color: #0047ab;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0b1f3a;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.errorCard {
+  text-align: center;
+  padding: 2rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #b42318;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #667085;
+    font-size: 1rem;
+    margin: 0;
+  }
+}

@@ -1,0 +1,141 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .required {
+    color: #DC3545;
+  }
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid #DEE2E6;
+  border-radius: 0.5rem;
+  background-color: #FFFFFF;
+  color: #212529;
+  transition: all 200ms ease-in-out;
+
+  &::placeholder {
+    color: #ADB5BD;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #0047AB;
+    box-shadow: 0 0 0 4px rgba(0, 71, 171, 0.1);
+  }
+
+  &:disabled {
+    background-color: #F1F3F5;
+    color: #6C757D;
+    cursor: not-allowed;
+  }
+
+  &.hasIcon {
+    padding-left: 2.75rem;
+  }
+
+  &.hasToggle {
+    padding-right: 2.75rem;
+  }
+
+  &.error {
+    border-color: #DC3545;
+
+    &:focus {
+      border-color: #DC3545;
+      box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+    }
+  }
+
+  &.success {
+    border-color: #28A745;
+
+    &:focus {
+      border-color: #28A745;
+      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
+    }
+  }
+}
+
+.icon {
+  position: absolute;
+  left: 0.75rem;
+  color: #6C757D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toggleButton {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #6C757D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 200ms ease-in-out;
+
+  &:hover {
+    color: #495057;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0047AB;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+}
+
+.helperText {
+  font-size: 0.875rem;
+  color: #6C757D;
+}
+
+.errorText {
+  font-size: 0.875rem;
+  color: #DC3545;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.charCount {
+  font-size: 0.75rem;
+  color: #ADB5BD;
+  text-align: right;
+
+  &.nearLimit {
+    color: #FFC107;
+  }
+
+  &.atLimit {
+    color: #DC3545;
+    font-weight: 600;
+  }
+}

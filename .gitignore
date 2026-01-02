@@ -1,0 +1,50 @@
+# ============================================
+# SIGIF Pointage - Git Ignore
+# ============================================
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# Dépendances
+node_modules/
+vendor/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Docker
+docker/postgres/data/
+
+# Uploads (si fichiers uploadés)
+uploads/
+temp/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# PM2
+.pm2/

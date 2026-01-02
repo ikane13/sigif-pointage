@@ -1,0 +1,148 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #00A6D6 0%, #0047AB 100%);
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  text-align: center;
+  color: #FFFFFF;
+
+  .logo {
+    width: 64px;
+    height: 64px;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0047AB;
+    margin: 0 auto;
+  }
+}
+
+.successCard {
+  text-align: center;
+  padding: 2rem 1rem;
+
+  .successIcon {
+    color: #28A745;
+    margin: 0 auto 1.5rem;
+    display: inline-block;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .successMessage {
+    font-size: 1.125rem;
+    color: #6C757D;
+    margin-bottom: 2rem;
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: #E9ECEF;
+  margin: 2rem 0;
+}
+
+.details {
+  text-align: left;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .detailsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .detailItem {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .detailIcon {
+      flex-shrink: 0;
+      color: #0047AB;
+      margin-top: 0.125rem;
+    }
+
+    .detailLabel {
+      font-size: 0.875rem;
+      color: #6C757D;
+      margin-bottom: 0.25rem;
+    }
+
+    .detailValue {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #212529;
+    }
+  }
+}
+
+.footer {
+  .footerText {
+    font-size: 0.875rem;
+    color: #6C757D;
+    margin: 0;
+
+    strong {
+      color: #0047AB;
+      font-weight: 600;
+    }
+  }
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.errorCard {
+  text-align: center;
+  padding: 2rem;
+
+  .errorIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC3545;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    color: #6C757D;
+    font-size: 1rem;
+  }
+}

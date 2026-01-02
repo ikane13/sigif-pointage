@@ -1,0 +1,54 @@
+services:
+  # ============================================
+  # Base de données PostgreSQL
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: sigif-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-sigif_pointage}
+      POSTGRES_USER: ${DB_USERNAME:-sigif_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Inconnue13!}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=fr_FR.UTF-8"
+      TZ: Africa/Dakar
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - sigif-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-sigif_user} -d ${DB_NAME:-sigif_pointage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # pgAdmin (optionnel)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sigif-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-ikane@minfinances.sn}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-Inconnue13!}
+    ports:
+      - "${PGADMIN_LISTEN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+    networks:
+      - sigif-network
+
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  sigif-network:
+    driver: bridge

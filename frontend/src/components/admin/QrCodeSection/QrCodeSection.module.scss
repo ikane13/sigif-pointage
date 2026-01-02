@@ -1,0 +1,143 @@
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.loading {
+  padding: 32px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.header {
+  display: none;
+}
+
+/* Carte premium */
+.qrCard {
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  padding: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+}
+
+.qrTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.qrTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+}
+
+.qrCanvas {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+}
+
+.qrImage {
+  width: 232px;
+  height: 232px;
+  background: #ffffff;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.statBox {
+  border: 1px solid #eef2f7;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0b3a82;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.urlBlock {
+  border: 1px solid #eef2f7;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.urlLabel {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.urlBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input {
+    width: 100%;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0 12px;
+    background: #ffffff;
+    font-size: 12px;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

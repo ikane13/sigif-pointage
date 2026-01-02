@@ -1,0 +1,89 @@
+// ============================================
+// 🌍 STYLES GLOBAUX
+// ============================================
+
+// ⚠️ IMPORTANT : Import dans le bon ordre
+@import './reset.scss';
+
+// ============================================
+// UTILITAIRES GLOBAUX
+// ============================================
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem; // 16px
+
+  @media (min-width: 576px) { 
+    max-width: 540px; 
+  }
+  
+  @media (min-width: 768px) { 
+    max-width: 720px; 
+  }
+  
+  @media (min-width: 992px) { 
+    max-width: 960px; 
+  }
+  
+  @media (min-width: 1200px) { 
+    max-width: 1140px; 
+  }
+  
+  @media (min-width: 1400px) { 
+    max-width: 1320px; 
+  }
+}
+
+// Spacing utilities
+.mt-0 { margin-top: 0 !important; }
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 0.75rem !important; }
+.mt-4 { margin-top: 1rem !important; }
+.mt-6 { margin-top: 1.5rem !important; }
+.mt-8 { margin-top: 2rem !important; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 0.75rem !important; }
+.mb-4 { margin-bottom: 1rem !important; }
+.mb-6 { margin-bottom: 1.5rem !important; }
+.mb-8 { margin-bottom: 2rem !important; }
+
+// Text utilities
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.text-xs { font-size: 0.75rem !important; }
+.text-sm { font-size: 0.875rem !important; }
+.text-base { font-size: 1rem !important; }
+.text-lg { font-size: 1.125rem !important; }
+.text-xl { font-size: 1.25rem !important; }
+
+.font-normal { font-weight: 400 !important; }
+.font-medium { font-weight: 500 !important; }
+.font-semibold { font-weight: 600 !important; }
+.font-bold { font-weight: 700 !important; }
+
+// Display utilities
+.hidden { display: none !important; }
+.block { display: block !important; }
+.inline-block { display: inline-block !important; }
+.flex { display: flex !important; }
+.inline-flex { display: inline-flex !important; }
+
+// Screen reader only
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

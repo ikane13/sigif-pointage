@@ -1,0 +1,91 @@
+.header {
+  .backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6C757D;
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    transition: color 200ms ease-in-out;
+
+    &:hover {
+      color: #0047AB;
+    }
+  }
+
+  .lockIcon {
+    width: 48px;
+    height: 48px;
+    background-color: #E8F0FF;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0047AB;
+    margin-bottom: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #6C757D;
+    margin-bottom: 2rem;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.passwordRules {
+  margin: -0.5rem 0;
+
+  .rulesTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+
+  .rulesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+
+    li {
+      font-size: 0.8125rem;
+      color: #6C757D;
+      padding-left: 1.25rem;
+      position: relative;
+
+      &::before {
+        content: '○';
+        position: absolute;
+        left: 0;
+        color: #ADB5BD;
+      }
+
+      &.valid {
+        color: #28A745;
+        font-weight: 500;
+
+        &::before {
+          content: '✓';
+          color: #28A745;
+        }
+      }
+    }
+  }
+}

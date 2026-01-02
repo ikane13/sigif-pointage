@@ -1,0 +1,62 @@
+.card {
+  background-color: #FFFFFF;
+  border-radius: 0.75rem;
+  transition: all 200ms ease-in-out;
+  overflow: hidden;
+
+  &.shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  &.hoverable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  // ============================================
+  // PADDING SIZES
+  // ============================================
+  &.paddingSm {
+    .body {
+      padding: 1rem;
+    }
+  }
+
+  &.paddingMd {
+    .body {
+      padding: 1.5rem;
+    }
+  }
+
+  &.paddingLg {
+    .body {
+      padding: 2rem;
+    }
+  }
+}
+
+.header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #E9ECEF;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #212529;
+}
+
+.body {
+  // Padding défini par les variants ci-dessus
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #E9ECEF;
+  background-color: #F8F9FA;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
