@@ -48,3 +48,8 @@ coverage/
 
 # PM2
 .pm2/
+
+# Fichiers de travail / notes locales
+*.txt
+* copy.*
+captures/
