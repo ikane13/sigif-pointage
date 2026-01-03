@@ -2,9 +2,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-// import * as crypto from 'crypto';
 import { Event, EventStatus, EventType } from '@/database/entities';
 import { CreateEventDto, UpdateEventDto } from './dto';
+import { UpdateEventStatusDto } from './dto/update-event-status.dto';
 
 @Injectable()
 export class EventsService {
@@ -13,6 +13,12 @@ export class EventsService {
     private eventRepository: Repository<Event>,
     private configService: ConfigService,
   ) {}
+
+  private assertEventNotLocked(event: Event) {
+    if (event.status === EventStatus.COMPLETED || event.status === EventStatus.CANCELLED) {
+      throw new BadRequestException("Action interdite : l'événement est terminé ou annulé");
+    }
+  }
 
   /**
    * Créer un événement (version corrigée: plus de logique QR Code ici)
@@ -36,48 +42,6 @@ export class EventsService {
 
     return await this.eventRepository.save(event);
   }
-
-  /*   async create(createEventDto: CreateEventDto, userId: string): Promise<Event> {
-    const { startDate, endDate, ...rest } = createEventDto;
-
-    // Valider que endDate >= startDate
-    if (endDate && new Date(endDate) < new Date(startDate)) {
-      throw new BadRequestException('La date de fin doit être postérieure à la date de début');
-    }
-
-    // Générer le code court pour le QR code (6 caractères alphanumériques)
-    const shortCode = this.generateShortCode();
-
-    // Générer le secret HMAC pour le QR code
-    const qrCodeSecret = this.generateQRSecret();
-
-    // Construire l'URL du QR code
-    const baseUrl = this.configService.get<string>('QR_CODE_BASE_URL');
-    const timestamp = Math.floor(Date.now() / 1000);
-    const signature = this.generateHMACSignature(shortCode, timestamp, qrCodeSecret);
-    const qrCodeData = `${baseUrl}/e/${shortCode}?t=${timestamp}&s=${signature}`;
-
-    // Calculer l'expiration du QR code (24h par défaut)
-    const validityHours = this.configService.get<number>('QR_CODE_VALIDITY_HOURS', 24);
-    const qrCodeExpiresAt = new Date();
-    qrCodeExpiresAt.setHours(qrCodeExpiresAt.getHours() + validityHours);
-
-    // Créer l'événement
-    const event = this.eventRepository.create({
-      ...rest,
-      startDate: new Date(startDate),
-      endDate: endDate ? new Date(endDate) : null,
-      status: EventStatus.SCHEDULED,
-      qrCodeData,
-      qrCodeSecret,
-      qrCodeExpiresAt,
-      createdById: userId,
-    });
-
-    await this.eventRepository.save(event);
-
-    return event;
-  } */
 
   /**
    * Récupérer tous les événements (avec pagination et filtres)
@@ -234,48 +198,11 @@ export class EventsService {
   }
 
   /**
-   * Récupérer un événement par code court (pour QR code)
-   */
-  /*   async findByShortCode(shortCode: string, timestamp: number, signature: string): Promise<Event> {
-    // Rechercher l'événement par le QR code
-    const event = await this.eventRepository
-      .createQueryBuilder('event')
-      .where('event.qrCodeData LIKE :shortCode', { shortCode: `%/e/${shortCode}%` })
-      .getOne();
-
-    if (!event) {
-      throw new NotFoundException('Événement introuvable');
-    }
-
-    // Vérifier l'expiration du QR code
-    if (event.qrCodeExpiresAt && new Date() > event.qrCodeExpiresAt) {
-      throw new BadRequestException('Le QR code a expiré');
-    }
-
-    // Vérifier la signature HMAC
-    const expectedSignature = this.generateHMACSignature(shortCode, timestamp, event.qrCodeSecret);
-
-    if (signature !== expectedSignature) {
-      throw new BadRequestException('QR code invalide (signature incorrecte)');
-    }
-
-    // Vérifier que le timestamp n'est pas trop ancien (protection contre replay)
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const maxAge = 86400; // 24h en secondes
-
-    if (currentTimestamp - timestamp > maxAge) {
-      throw new BadRequestException('QR code expiré (timestamp trop ancien)');
-    }
-
-    return event;
-  } */
-
-  /**
    * Mettre à jour un événement
    */
   async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
     const event = await this.findOne(id);
-
+    this.assertEventNotLocked(event);
     // Valider les dates si modifiées
     if (updateEventDto.startDate || updateEventDto.endDate) {
       const newStartDate = updateEventDto.startDate
@@ -309,66 +236,30 @@ export class EventsService {
    */
   async remove(id: string): Promise<void> {
     const event = await this.findOne(id);
+    this.assertEventNotLocked(event);
     await this.eventRepository.remove(event);
   }
 
-  /**
-   * Régénérer le QR code d'un événement
-   */
-  /*  async regenerateQRCode(id: string): Promise<{ qrCodeData: string; qrCodeExpiresAt: Date }> {
-    const event = await this.findOne(id);
+  async updateStatus(id: string, dto: UpdateEventStatusDto) {
+    const event = await this.eventRepository.findOne({ where: { id } });
+    if (!event) throw new NotFoundException('Événement introuvable');
 
-    // Générer un nouveau code court
-    const shortCode = this.generateShortCode();
+    const next = dto.status;
+    const current = event.status;
 
-    // Générer un nouveau secret
-    const qrCodeSecret = this.generateQRSecret();
+    // Transitions autorisées (Option B)
+    const allowed: Record<EventStatus, EventStatus[]> = {
+      [EventStatus.SCHEDULED]: [EventStatus.ONGOING, EventStatus.CANCELLED],
+      [EventStatus.ONGOING]: [EventStatus.COMPLETED, EventStatus.CANCELLED],
+      [EventStatus.COMPLETED]: [],
+      [EventStatus.CANCELLED]: [],
+    };
 
-    // Construire la nouvelle URL
-    const baseUrl = this.configService.get<string>('QR_CODE_BASE_URL');
-    const timestamp = Math.floor(Date.now() / 1000);
-    const signature = this.generateHMACSignature(shortCode, timestamp, qrCodeSecret);
-    const qrCodeData = `${baseUrl}/e/${shortCode}?t=${timestamp}&s=${signature}`;
-
-    // Nouvelle expiration
-    const validityHours = this.configService.get<number>('QR_CODE_VALIDITY_HOURS', 24);
-    const qrCodeExpiresAt = new Date();
-    qrCodeExpiresAt.setHours(qrCodeExpiresAt.getHours() + validityHours);
-
-    // Mettre à jour
-    event.qrCodeData = qrCodeData;
-    event.qrCodeSecret = qrCodeSecret;
-    event.qrCodeExpiresAt = qrCodeExpiresAt;
-
-    await this.eventRepository.save(event);
-
-    return { qrCodeData, qrCodeExpiresAt };
-  } */
-
-  /**
-   * Générer un code court unique (6 caractères)
-   */
-  /*   private generateShortCode(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    if (!allowed[current].includes(next)) {
+      throw new BadRequestException(`Transition de statut non autorisée (${current} -> ${next})`);
     }
-    return code;
-  } */
 
-  /**
-   * Générer un secret HMAC aléatoire
-   */
-  /*   private generateQRSecret(): string {
-    return crypto.randomBytes(32).toString('hex');
-  } */
-
-  /**
-   * Générer la signature HMAC pour le QR code
-   */
-  /*   private generateHMACSignature(shortCode: string, timestamp: number, secret: string): string {
-    const data = `${shortCode}:${timestamp}`;
-    return crypto.createHmac('sha256', secret).update(data).digest('hex').substring(0, 16);
-  } */
+    event.status = next;
+    return this.eventRepository.save(event);
+  }
 }

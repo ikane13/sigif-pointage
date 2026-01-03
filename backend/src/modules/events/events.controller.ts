@@ -21,6 +21,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { User, UserRole, EventStatus, EventType } from '@/database/entities';
+import { UpdateEventStatusDto } from './dto/update-event-status.dto';
 
 @Controller('events')
 export class EventsController {
@@ -80,38 +81,6 @@ export class EventsController {
   }
 
   /**
-   * ⚠️ IMPORTANT : Cette route DOIT être AVANT /api/events/:id
-   * GET /api/events/by-code/:shortCode
-   * Récupérer un événement par code QR (public)
-   */
-  /* @Get('by-code/:shortCode')
-  async findByShortCode(
-    @Param('shortCode') shortCode: string,
-    @Query('t') timestamp: string,
-    @Query('s') signature: string,
-  ) {
-    const event = await this.eventsService.findByShortCode(
-      shortCode,
-      parseInt(timestamp),
-      signature,
-    );
-
-    return {
-      success: true,
-      data: {
-        id: event.id,
-        title: event.title,
-        eventType: event.eventType,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        location: event.location,
-        organizer: event.organizer,
-        status: event.status,
-      },
-    };
-  } */
-
-  /**
    * GET /api/events/:id
    * Détails d'un événement (optionnel auth pour participants)
    */
@@ -159,21 +128,8 @@ export class EventsController {
     };
   }
 
-  /**
-   * POST /api/events/:id/regenerate-qr
-   * Régénérer le QR code
-   */
-  /*   @Post(':id/regenerate-qr')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
-  @HttpCode(HttpStatus.OK)
-  async regenerateQRCode(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.eventsService.regenerateQRCode(id);
-
-    return {
-      success: true,
-      data: result,
-      message: 'QR code régénéré avec succès',
-    };
-  } */
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateEventStatusDto) {
+    return this.eventsService.updateStatus(id, dto);
+  }
 }

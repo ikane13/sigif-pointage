@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Event } from '../../database/entities/event.entity';
+import { Event, EventStatus } from '../../database/entities/event.entity';
 import * as QRCode from 'qrcode';
 import * as PDFDocument from 'pdfkit';
 import { randomBytes } from 'crypto';
@@ -29,6 +34,12 @@ export class QrCodesService {
     return `${frontendUrl}/pointage?token=${token}`;
   }
 
+  private assertEventNotLocked(event: Event) {
+    if (event.status === EventStatus.COMPLETED || event.status === EventStatus.CANCELLED) {
+      throw new BadRequestException("Action interdite : l'événement est terminé ou annulé");
+    }
+  }
+
   /**
    * Générer ou régénérer le QR code pour un événement
    */
@@ -49,6 +60,7 @@ export class QrCodesService {
     if (!event) {
       throw new NotFoundException('Événement introuvable');
     }
+    this.assertEventNotLocked(event);
 
     const token = this.generateToken();
     const generatedAt = new Date();
@@ -59,7 +71,7 @@ export class QrCodesService {
 
     await this.eventRepository.save(event);
 
-    console.log(`✅ QR Code généré pour l'événement "${event.title}"`);
+    console.log(`QR Code généré pour l'événement "${event.title}"`);
 
     const apiUrl = process.env.API_URL || 'http://localhost:3000/api';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
@@ -97,6 +109,7 @@ export class QrCodesService {
     if (!event) {
       throw new NotFoundException('Événement introuvable');
     }
+    this.assertEventNotLocked(event);
 
     if (!event.qrToken) {
       throw new NotFoundException('Aucun QR code généré pour cet événement');
@@ -129,13 +142,14 @@ export class QrCodesService {
     if (!event) {
       throw new NotFoundException('QR code invalide ou expiré');
     }
+    this.assertEventNotLocked(event);
 
     // Incrément atomique (pas de race condition)
     await this.eventRepository.increment({ id: event.id }, 'qrScanCount', 1);
 
     // Log avec count estimé (pas besoin de reload pour économiser une requête SQL)
     const estimatedCount = (event.qrScanCount || 0) + 1;
-    console.log(`📱 QR Code scanné pour "${event.title}" (scan ~${estimatedCount})`);
+    console.log(`QR Code scanné pour "${event.title}" (scan ~${estimatedCount})`);
 
     return event;
   }
@@ -151,6 +165,7 @@ export class QrCodesService {
     if (!event || !event.qrToken) {
       throw new NotFoundException('QR code non généré pour cet événement');
     }
+    this.assertEventNotLocked(event);
 
     const pointageUrl = this.getPointageUrl(event.qrToken);
 
@@ -166,7 +181,7 @@ export class QrCodesService {
         },
       });
 
-      console.log(`✅ QR Code PNG généré (${qrCodeBuffer.length} bytes)`);
+      console.log(` QR Code PNG généré (${qrCodeBuffer.length} bytes)`);
       return qrCodeBuffer;
     } catch (error) {
       console.error('❌ Erreur génération PNG:', error);
@@ -176,7 +191,7 @@ export class QrCodesService {
 
   /**
    * Générer le PDF formaté du QR code
-   * ✅ Retourne un stream Node.js (pas un PDFDocument)
+   *  Retourne un stream Node.js (pas un PDFDocument)
    */
   async generatePdfStream(eventId: string): Promise<NodeJS.ReadableStream> {
     const event = await this.eventRepository.findOne({
@@ -186,11 +201,12 @@ export class QrCodesService {
     if (!event || !event.qrToken) {
       throw new NotFoundException('QR code non généré pour cet événement');
     }
+    this.assertEventNotLocked(event);
 
     const pointageUrl = this.getPointageUrl(event.qrToken);
 
     try {
-      // ✅ Générer le QR code en Buffer (pas en DataURL)
+      //  Générer le QR code en Buffer (pas en DataURL)
       const qrCodeBuffer = await QRCode.toBuffer(pointageUrl, {
         errorCorrectionLevel: 'H',
         type: 'png',
@@ -198,16 +214,16 @@ export class QrCodesService {
         margin: 2,
       });
 
-      // ✅ Créer un stream intermédiaire
+      //  Créer un stream intermédiaire
       const stream = new PassThrough();
 
-      // ✅ Créer le document PDF avec cast as any (compatibilité TypeScript)
+      //  Créer le document PDF avec cast as any (compatibilité TypeScript)
       const doc = new (PDFDocument as any)({
         size: 'A4',
         margins: { top: 50, bottom: 50, left: 50, right: 50 },
       });
 
-      // ✅ Pipe le PDF dans le stream
+      //  Pipe le PDF dans le stream
       doc.pipe(stream);
 
       // En-tête
@@ -226,7 +242,7 @@ export class QrCodesService {
       // Ligne de séparation
       doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke().moveDown(2);
 
-      // ✅ QR Code centré (utiliser le Buffer)
+      //  QR Code centré (utiliser le Buffer)
       const qrSize = 400;
       const pageWidth = 595.28; // A4 width in points
       const qrX = (pageWidth - qrSize) / 2;
@@ -277,12 +293,12 @@ export class QrCodesService {
         .fillColor('#666666')
         .text('Pour toute question : support@sigif.gouv.sn', { align: 'center' });
 
-      // ✅ Finaliser le document
+      //  Finaliser le document
       doc.end();
 
-      console.log(`✅ QR Code PDF généré pour "${event.title}"`);
+      console.log(` QR Code PDF généré pour "${event.title}"`);
 
-      // ✅ Retourner le stream (pas le doc)
+      //  Retourner le stream (pas le doc)
       return stream;
     } catch (error) {
       console.error('❌ Erreur génération PDF:', error);

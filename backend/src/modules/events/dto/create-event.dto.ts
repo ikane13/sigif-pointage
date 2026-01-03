@@ -7,7 +7,10 @@ import {
   MaxLength,
   IsObject,
   ValidateIf,
+  IsInt,
+  Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { EventType } from '@/database/entities';
 
 export class CreateEventDto {
@@ -49,4 +52,10 @@ export class CreateEventDto {
   @IsObject()
   @IsOptional()
   additionalInfo?: Record<string, any>;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  capacity?: number;
 }

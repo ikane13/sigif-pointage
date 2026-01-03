@@ -3,22 +3,22 @@ import type { Event, CreateEventDto } from '@/types/event.types';
 
 export const eventsService = {
   // Récupérer tous les événements
-getAll: async (): Promise<Event[]> => {
-  const { data } = await api.get('/events');
+  getAll: async (): Promise<Event[]> => {
+    const { data } = await api.get('/events');
 
-  const payload = data?.data ?? data; // compat
+    const payload = data?.data ?? data; // compat
 
-  // Si c'est déjà un tableau → ok
-  if (Array.isArray(payload)) return payload;
+    // Si c'est déjà un tableau → ok
+    if (Array.isArray(payload)) return payload;
 
-  // Si le backend renvoie un objet paginé, ex: { items: [...] } ou { results: [...] }
-  if (Array.isArray(payload?.items)) return payload.items;
-  if (Array.isArray(payload?.results)) return payload.results;
-  if (Array.isArray(payload?.events)) return payload.events;
+    // Si le backend renvoie un objet paginé, ex: { items: [...] } ou { results: [...] }
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.results)) return payload.results;
+    if (Array.isArray(payload?.events)) return payload.events;
 
-  // Sinon, on fallback
-  return [];
-},
+    // Sinon, on fallback
+    return [];
+  },
 
   // Récupérer un événement par ID
   getById: async (id: string): Promise<Event> => {
@@ -42,4 +42,13 @@ getAll: async (): Promise<Event[]> => {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/events/${id}`);
   },
+
+  updateStatus: async (
+    id: string,
+    status: 'scheduled' | 'ongoing' | 'completed' | 'cancelled'
+  ): Promise<Event> => {
+    const { data } = await api.patch(`/events/${id}/status`, { status });
+    return data.data || data;
+  },
+
 };

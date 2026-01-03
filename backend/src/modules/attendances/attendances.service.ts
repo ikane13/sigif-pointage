@@ -11,6 +11,7 @@ import { CreateAttendanceDto } from './dto';
 import { ParticipantsService } from '../participants/participants.service';
 import { EventsService } from '../events/events.service';
 import { validateSignatureSize, extractImageFormat } from '@/utils/signature.util';
+import { EventStatus } from '../../database/entities/event.entity';
 
 @Injectable()
 export class AttendancesService {
@@ -34,12 +35,18 @@ export class AttendancesService {
     // 1. Vérifier que l'événement existe et est actif
     const event = await this.eventsService.findOne(eventId);
 
-    if (!event) {
-      throw new NotFoundException('Événement introuvable');
+    if (event.status === EventStatus.CANCELLED) {
+      throw new BadRequestException("Cet événement a été annulé. Contactez l'organisateur!");
     }
 
-    if (event.status === 'cancelled') {
-      throw new BadRequestException('Cet événement a été annulé');
+    if (event.status !== EventStatus.ONGOING) {
+      throw new BadRequestException(
+        "Le pointage n'est autorisé que lorsque l'événement est démarré. Contactez l'organisateur!",
+      );
+    }
+
+    if (!event) {
+      throw new NotFoundException('Événement introuvable');
     }
 
     // 2. Trouver ou créer le participant

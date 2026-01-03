@@ -9,7 +9,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     const dbSsl = this.configService.get<string>('DB_SSL', 'false');
-    
+
     return {
       type: 'postgres',
       host: this.configService.get<string>('DB_HOST', 'localhost'),
@@ -17,19 +17,19 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('DB_USERNAME', 'sigif_user'),
       password: this.configService.get<string>('DB_PASSWORD'),
       database: this.configService.get<string>('DB_NAME', 'sigif_pointage'),
-      
+
       // Charger toutes les entités du dossier database/entities
       entities: [path.join(__dirname, '..', 'database', 'entities', '*.entity.{ts,js}')],
-      
+
       // NE PAS utiliser synchronize en production !
       synchronize: this.configService.get<boolean>('DB_SYNCHRONIZE', false),
-      
+
       // Logging des requêtes SQL en développement
       logging: this.configService.get<boolean>('DB_LOGGING', false),
-      
+
       // SSL - CORRECTION ICI
       ssl: dbSsl === 'true' ? { rejectUnauthorized: false } : false,
-      
+
       // Options de performance
       extra: {
         max: 20, // Pool de connexions max
