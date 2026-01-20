@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type FC, useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Card } from "@components/common/Card";

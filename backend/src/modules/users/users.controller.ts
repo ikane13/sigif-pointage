@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dto';
+import { CreateUserDto, UpdateUserDto, ChangePasswordDto, ResetPasswordDto } from './dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { RolesGuard } from '@/common/guards/roles.guard';
@@ -150,6 +150,26 @@ export class UsersController {
     return {
       success: true,
       message: 'Mot de passe modifié avec succès',
+    };
+  }
+
+  /**
+   * PATCH /api/users/:id/reset-password
+   * Réinitialiser le mot de passe (admin uniquement)
+   */
+  @Patch(':id/reset-password')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    await this.usersService.resetPassword(id, resetPasswordDto.newPassword);
+
+    return {
+      success: true,
+      message: 'Mot de passe réinitialisé avec succès',
     };
   }
 }

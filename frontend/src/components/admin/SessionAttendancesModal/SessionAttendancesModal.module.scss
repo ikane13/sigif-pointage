@@ -1,0 +1,465 @@
+// ============================================
+// VARIABLES
+// ============================================
+
+$color-dtai-blue: #0b3a82;
+$color-dtai-light: #2563eb;
+$color-secondary: #0f172a;
+$color-border: #e2e8f0;
+$color-bg-light: #f8fafc;
+$color-text-muted: #64748b;
+$color-success: #10b981;
+$color-warning: #f59e0b;
+$color-danger: #ef4444;
+
+// ============================================
+// WRAPPER PRINCIPAL
+// ============================================
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 400px;
+}
+
+// ============================================
+// TOP BAR (Recherche + Stats)
+// ============================================
+
+.topBar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, $color-bg-light 0%, white 100%);
+  border: 1px solid $color-border;
+  border-radius: 12px;
+
+  @media (max-width: 760px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+}
+
+.search {
+  flex: 1;
+  min-width: 0;
+}
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  background: white;
+  border: 2px solid $color-dtai-blue;
+  border-radius: 12px;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(11, 58, 130, 0.1);
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 58, 130, 0.15);
+  }
+
+  @media (max-width: 760px) {
+    align-self: center;
+  }
+}
+
+.counterLabel {
+  font-size: 12px;
+  color: $color-text-muted;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.counterValue {
+  font-size: 32px;
+  font-weight: 800;
+  color: $color-dtai-blue;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+// ============================================
+// ÉTATS (Error, Loading, Empty)
+// ============================================
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  color: $color-danger;
+  font-weight: 600;
+  
+  &::before {
+    content: "⚠️";
+    font-size: 24px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  min-height: 300px;
+}
+
+.empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: $color-text-muted;
+  font-size: 15px;
+  
+  &::before {
+    content: "📋";
+    display: block;
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+  
+  &::after {
+    content: "Aucune présence enregistrée";
+    display: block;
+    margin-top: 8px;
+    font-style: italic;
+  }
+}
+
+// ============================================
+// TABLEAU PRINCIPAL
+// ============================================
+
+.tableWrap {
+  border: 2px solid $color-border;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead th {
+    text-align: left;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid $color-border;
+    color: $color-dtai-blue;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    
+    &:first-child {
+      border-top-left-radius: 12px;
+    }
+    
+    &:last-child {
+      border-top-right-radius: 12px;
+    }
+  }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: $color-secondary;
+    vertical-align: middle;
+    
+    &:first-child {
+      font-weight: 700;
+    }
+  }
+
+  tbody tr {
+    transition: all 0.2s;
+    
+    &:nth-child(even) {
+      background: #fafbfc;
+    }
+    
+    &:hover {
+      background: #f1f5f9;
+      transform: scale(1.005);
+      box-shadow: inset 0 0 0 1px $color-border;
+      
+      td:first-child {
+        color: $color-dtai-blue;
+      }
+    }
+    
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.name {
+  font-weight: 800;
+  color: $color-secondary;
+  font-size: 14px;
+}
+
+// ============================================
+// CELLULE SIGNATURE (Tableau principal)
+// ============================================
+
+.signatureCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.signatureImage {
+  max-width: 160px;
+  max-height: 44px;
+  display: block;
+  object-fit: contain;
+  cursor: pointer;
+  background: white;
+  border: 2px solid $color-border;
+  border-radius: 10px;
+  padding: 6px 10px;
+  transition: all 0.3s;
+  
+  &:hover {
+    border-color: $color-dtai-blue;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(11, 58, 130, 0.2);
+  }
+}
+
+.signaturePending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $color-text-muted;
+  font-style: italic;
+  padding: 6px 12px;
+  background: $color-bg-light;
+  border-radius: 8px;
+  
+  &::before {
+    content: "⏳";
+    font-size: 14px;
+  }
+}
+
+// ============================================
+// BADGES STATUT (Si besoin)
+// ============================================
+
+.sigYes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  border: 2px solid #86efac;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  
+  &::before {
+    content: "✓";
+    font-size: 14px;
+  }
+}
+
+.sigNo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #6c757d;
+  background: #f1f3f5;
+  border: 2px solid #e9ecef;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  
+  &::before {
+    content: "✗";
+    font-size: 14px;
+  }
+}
+
+// ============================================
+// MODAL SIGNATURE (Aperçu plein écran)
+// ============================================
+
+.sigPreview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 2px solid $color-border;
+  border-radius: 16px;
+  min-height: 300px;
+
+  img {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid $color-border;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.sigLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 300px;
+}
+
+.sigError {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  color: $color-danger;
+  font-weight: 600;
+  font-size: 14px;
+  
+  svg {
+    flex-shrink: 0;
+    color: $color-danger;
+  }
+}
+
+.sigEmpty {
+  padding: 60px 20px;
+  text-align: center;
+  color: $color-text-muted;
+  font-size: 15px;
+  font-style: italic;
+  
+  &::before {
+    content: "📝";
+    display: block;
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 900px) {
+  .table {
+    font-size: 12px;
+    
+    thead th,
+    tbody td {
+      padding: 10px 12px;
+    }
+  }
+  
+  .signatureImage {
+    max-width: 120px;
+    max-height: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    gap: 16px;
+  }
+  
+  .topBar {
+    padding: 16px;
+  }
+  
+  .counterValue {
+    font-size: 28px;
+  }
+  
+  .tableWrap {
+    overflow-x: auto;
+    border-radius: 10px;
+  }
+  
+  .table {
+    min-width: 800px;
+  }
+  
+  .sigPreview {
+    padding: 16px;
+    
+    img {
+      max-height: 50vh;
+      padding: 12px;
+    }
+  }
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tableWrap {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.counter {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.signaturePending {
+  background: linear-gradient(
+    90deg,
+    $color-bg-light 0%,
+    #eef2f7 50%,
+    $color-bg-light 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}

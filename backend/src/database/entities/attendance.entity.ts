@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Event } from './event.entity';
 import { Participant } from './participant.entity';
+import { Session } from './session.entity';
 
 export enum CheckInMode {
   QR_CODE = 'qr_code',
@@ -26,7 +27,7 @@ export enum SignatureFormat {
 }
 
 @Entity('attendances')
-@Unique('uniq_attendance_event_participant', ['eventId', 'participantId'])
+@Unique('uniq_participant_session', ['participantId', 'sessionId'])
 export class Attendance {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -50,6 +51,16 @@ export class Attendance {
   })
   @JoinColumn({ name: 'participant_id' })
   participant: Participant;
+
+  @Column({ name: 'session_id', type: 'uuid', nullable: false })
+  @Index()
+  sessionId: string;
+
+  @ManyToOne(() => Session, (session) => session.attendances, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'session_id' })
+  session: Session;
 
   @Column({ name: 'check_in_time', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Index()

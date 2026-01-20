@@ -21,7 +21,8 @@ import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { RolesGuard } from '@/common/guards/roles.guard';
-import { UserRole, CheckInMode } from '@/database/entities';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { UserRole, CheckInMode, User } from '@/database/entities';
 
 @Controller('attendances')
 export class AttendancesController {
@@ -75,11 +76,13 @@ export class AttendancesController {
     @Query('checkInMode') checkInMode?: CheckInMode,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
+    @Query('sessionId') sessionId?: string,
   ) {
     const result = await this.attendancesService.findAll({
       page,
       limit,
       eventId,
+      sessionId,
       participantId,
       checkInFrom,
       checkInTo,
@@ -133,8 +136,8 @@ export class AttendancesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
-    await this.attendancesService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    await this.attendancesService.remove(id, user);
 
     return {
       success: true,

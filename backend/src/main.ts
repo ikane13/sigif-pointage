@@ -16,6 +16,9 @@ async function bootstrap() {
   app.use(express.json({ limit: '500kb' }));
   app.use(express.urlencoded({ limit: '500kb', extended: true }));
 
+  // Servir les fichiers statiques (uploads)
+  app.use('/uploads', express.static('uploads'));
+
   // Récupérer le service de configuration
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);

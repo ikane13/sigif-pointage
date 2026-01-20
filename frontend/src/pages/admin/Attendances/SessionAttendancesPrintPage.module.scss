@@ -1,0 +1,514 @@
+// ============================================
+// VARIABLES INSTITUTIONNELLES DTAI
+// ============================================
+
+$color-dtai-blue: #0b3a82;
+$color-dtai-dark: #0a2d66;
+$color-secondary: #0f172a;
+$color-border: #cbd5e1;
+$color-border-light: #e2e8f0;
+$color-bg-light: #f8fafc;
+$color-text-muted: #64748b;
+
+// ============================================
+// LAYOUT GÉNÉRAL
+// ============================================
+
+.page {
+  background: #ffffff;
+  color: $color-secondary;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 13px;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.centered {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid $color-border-light;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.noPrint {
+  /* Masqué à l'impression */
+}
+
+.error {
+  padding: 20px;
+  border: 2px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+// ============================================
+// EN-TÊTE INSTITUTIONNEL
+// ============================================
+
+.brandHeader {
+  border: 2px solid $color-border;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  @media print {
+    border: 1px solid $color-border;
+    box-shadow: none;
+    margin-bottom: 16px;
+    border-radius: 0;
+  }
+}
+
+.banner {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  border-bottom: 2px solid $color-dtai-blue;
+  
+  @media print {
+    border-bottom: 2px solid $color-dtai-blue;
+  }
+}
+
+.brandInner {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(to right, #f8fafc 0%, #ffffff 100%);
+
+  @media (max-width: 760px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  @media print {
+    background: white;
+    padding: 12px 16px;
+  }
+}
+
+.logo {
+  width: 64px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  
+  @media print {
+    filter: none;
+    width: 56px;
+  }
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.brandTitle {
+  font-weight: 800;
+  font-size: 18px;
+  color: $color-dtai-blue;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  @media print {
+    font-size: 16px;
+    color: $color-dtai-dark;
+  }
+}
+
+.brandSubtitle {
+  font-size: 13px;
+  color: $color-text-muted;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  
+  @media print {
+    font-size: 12px;
+    color: #475569;
+  }
+}
+
+// ============================================
+// SECTION MÉTADONNÉES
+// ============================================
+
+.header {
+  border: 2px solid $color-border;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  page-break-inside: avoid;
+  
+  @media print {
+    border: 1px solid $color-border;
+    box-shadow: none;
+    margin-bottom: 20px;
+    border-radius: 0;
+  }
+}
+
+.headerTitle {
+  font-weight: 800;
+  font-size: 20px;
+  text-align: center;
+  padding: 16px 20px;
+  color: #ffffff;
+  background: $color-dtai-blue;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 3px solid $color-dtai-dark;
+  
+  @media print {
+    color: $color-dtai-dark;
+    background: white;
+    border: 2px solid $color-dtai-blue;
+    border-bottom: 3px solid $color-dtai-blue;
+    padding: 12px 16px;
+    font-size: 18px;
+  }
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  background: white;
+  
+  @media (min-width: 760px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  @media print {
+    grid-template-columns: 50% 50% !important;
+    gap: 0 !important;
+  }
+}
+
+.metaItem {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0;
+  border-bottom: 1px solid $color-border-light;
+  background: white;
+  transition: background 0.2s;
+  
+  &:nth-child(odd) {
+    @media (min-width: 760px) {
+      border-right: 1px solid $color-border-light;
+    }
+  }
+  
+  &:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background: #fafbfc;
+    
+    @media print {
+      background: white;
+    }
+  }
+  
+  @media print {
+    page-break-inside: avoid !important;
+    
+    &:nth-child(odd) {
+      border-right: 1px solid $color-border !important;
+    }
+  }
+}
+
+.metaLabel {
+  font-size: 11px;
+  color: $color-text-muted;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  background: $color-bg-light;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  border-right: 2px solid $color-border-light;
+  
+  @media print {
+    background: white;
+    padding: 10px 12px;
+    font-size: 10px;
+    color: #475569;
+    border-right: 1px solid $color-border;
+  }
+}
+
+.metaValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: $color-secondary;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  
+  @media print {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+}
+
+// ============================================
+// TABLEAU DES PRÉSENCES
+// ============================================
+
+.tableWrap {
+  border: 2px solid $color-border;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  
+  @media print {
+    border: 1px solid $color-border;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead th {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid $color-border;
+    text-align: left;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-dtai-blue;
+    
+    &:first-child {
+      padding-left: 16px;
+    }
+    
+    @media print {
+      background: white;
+      border-bottom: 2px solid $color-dtai-blue;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: $color-dtai-dark;
+    }
+  }
+
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid $color-border-light;
+    vertical-align: middle;
+    
+    &:first-child {
+      padding-left: 16px;
+      font-weight: 600;
+      color: $color-text-muted;
+    }
+    
+    @media print {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+  }
+
+  tbody tr {
+    transition: background 0.2s;
+    
+    &:nth-child(even) {
+      background: #fafbfc;
+    }
+    
+    &:hover {
+      background: #f1f5f9;
+      
+      @media print {
+        background: white;
+      }
+    }
+    
+    &:last-child td {
+      border-bottom: none;
+    }
+    
+    @media print {
+      &:nth-child(even) {
+        background: white;
+      }
+    }
+  }
+}
+
+.strong {
+  font-weight: 700;
+  color: $color-secondary;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: $color-text-muted;
+  font-style: italic;
+  font-size: 14px;
+}
+
+// ============================================
+// SIGNATURES
+// ============================================
+
+.signatureCell {
+  min-height: 48px;
+  padding: 8px !important;
+  
+  @media print {
+    border: 1px solid $color-border;
+    min-height: 50px;
+    background: white;
+    padding: 6px !important;
+  }
+}
+
+.signatureImage {
+  max-width: 100%;
+  max-height: 42px;
+  display: block;
+  object-fit: contain;
+  
+  @media print {
+    max-height: 40px;
+    filter: grayscale(0%); // Force couleurs signatures
+  }
+}
+
+.signaturePending {
+  font-size: 11px;
+  color: $color-text-muted;
+  font-style: italic;
+  
+  @media print {
+    display: none; // Cache "Chargement..." en print
+  }
+}
+
+// ============================================
+// FOOTER
+// ============================================
+
+.footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid $color-border-light;
+  font-size: 12px;
+  color: $color-text-muted;
+  text-align: center;
+  
+  @media print {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid $color-border;
+    counter-reset: page 1;
+    font-size: 11px;
+    
+    &::after {
+      content: " — Page " counter(page);
+    }
+  }
+}
+
+// ============================================
+// STYLES D'IMPRESSION (ECO-PRINT)
+// ============================================
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  .noPrint {
+    display: none !important;
+  }
+  
+  .page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background: white;
+  }
+
+  .brandHeader {
+    border: 1px solid $color-border;
+    margin-bottom: 16px;
+    box-shadow: none;
+  }
+
+  .banner {
+    border-bottom: 2px solid $color-dtai-blue;
+  }
+
+  .brandInner {
+    padding: 12px 16px;
+    background: white;
+  }
+
+  .header {
+    border: 1px solid $color-border;
+    margin-bottom: 20px;
+    box-shadow: none;
+  }
+
+  .tableWrap {
+    border: 1px solid $color-border;
+  }
+
+  .table {
+    thead {
+      display: table-header-group;
+    }
+
+    tbody tr {
+      page-break-inside: avoid;
+    }
+  }
+}

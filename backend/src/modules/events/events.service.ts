@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import { Event, EventStatus, EventType } from '@/database/entities';
+import { Session, SessionStatus, Event, EventStatus, EventType, User, UserRole } from '@/database/entities';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateEventDto, UpdateEventDto } from './dto';
 import { UpdateEventStatusDto } from './dto/update-event-status.dto';
 
@@ -11,7 +11,9 @@ export class EventsService {
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
-    private configService: ConfigService,
+    @InjectRepository(Session)
+    private sessionRepository: Repository<Session>,
+    private notificationsService: NotificationsService,
   ) {}
 
   private assertEventNotLocked(event: Event) {
@@ -20,10 +22,16 @@ export class EventsService {
     }
   }
 
+  assertUserCanManageEvent(event: Event, user: User) {
+    if (user.role === UserRole.ADMIN) return;
+    if (user.role === UserRole.ORGANIZER && event.createdById === user.id) return;
+    throw new ForbiddenException("Vous n'êtes pas autorisé à modifier cet événement");
+  }
+
   /**
    * Créer un événement (version corrigée: plus de logique QR Code ici)
    */
-  async create(createEventDto: CreateEventDto, userId: string): Promise<Event> {
+  async create(createEventDto: CreateEventDto, user: User): Promise<Event> {
     const { startDate, endDate, ...rest } = createEventDto;
 
     // Valider que endDate >= startDate
@@ -37,10 +45,12 @@ export class EventsService {
       startDate: new Date(startDate),
       endDate: endDate ? new Date(endDate) : null,
       status: EventStatus.SCHEDULED,
-      createdById: userId,
+      createdById: user.id,
     });
 
-    return await this.eventRepository.save(event);
+    const saved = await this.eventRepository.save(event);
+    await this.notificationsService.notifyEventCreated(saved, user);
+    return saved;
   }
 
   /**
@@ -200,8 +210,9 @@ export class EventsService {
   /**
    * Mettre à jour un événement
    */
-  async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
+  async update(id: string, updateEventDto: UpdateEventDto, user: User): Promise<Event> {
     const event = await this.findOne(id);
+    this.assertUserCanManageEvent(event, user);
     this.assertEventNotLocked(event);
     // Valider les dates si modifiées
     if (updateEventDto.startDate || updateEventDto.endDate) {
@@ -227,22 +238,24 @@ export class EventsService {
     }
 
     await this.eventRepository.save(event);
-
     return event;
   }
 
   /**
    * Supprimer un événement
    */
-  async remove(id: string): Promise<void> {
+  async remove(id: string, user: User): Promise<void> {
     const event = await this.findOne(id);
+    this.assertUserCanManageEvent(event, user);
     this.assertEventNotLocked(event);
+    await this.notificationsService.notifyEventDeleted(event, user);
     await this.eventRepository.remove(event);
   }
 
-  async updateStatus(id: string, dto: UpdateEventStatusDto) {
+  async updateStatus(id: string, dto: UpdateEventStatusDto, user: User) {
     const event = await this.eventRepository.findOne({ where: { id } });
     if (!event) throw new NotFoundException('Événement introuvable');
+    this.assertUserCanManageEvent(event, user);
 
     const next = dto.status;
     const current = event.status;
@@ -260,6 +273,66 @@ export class EventsService {
     }
 
     event.status = next;
-    return this.eventRepository.save(event);
+    const saved = await this.eventRepository.save(event);
+
+    if (next === EventStatus.CANCELLED && current !== EventStatus.CANCELLED) {
+      await this.notificationsService.notifyEventCancelled(saved, user);
+    }
+
+    return saved;
+  }
+  /**
+   * Calcul automatique du statut de l'évenement en fonctions de ceux de ses sessions
+   */
+  async recomputeStatusFromSessions(eventId: string): Promise<Event> {
+    const event = await this.eventRepository.findOne({ where: { id: eventId } });
+    if (!event) {
+      throw new NotFoundException('Événement introuvable');
+    }
+
+    // Override admin
+    if (event.status === EventStatus.CANCELLED) {
+      return event;
+    }
+
+    // Charger uniquement les statuts (léger)
+    const sessions = await this.sessionRepository.find({
+      where: { eventId },
+      select: ['id', 'status'],
+    });
+
+    // Aucun session => on reste en scheduled (cas rare si tu crées event sans générer session)
+    if (sessions.length === 0) {
+      if (event.status !== EventStatus.SCHEDULED) {
+        event.status = EventStatus.SCHEDULED;
+        return this.eventRepository.save(event);
+      }
+      return event;
+    }
+
+    const statuses = sessions.map((s) => s.status);
+
+    const hasOngoing = statuses.includes(SessionStatus.ONGOING);
+
+    const allClosed = statuses.every(
+      (s) => s === SessionStatus.COMPLETED || s === SessionStatus.CANCELLED,
+    );
+
+    let next: EventStatus;
+
+    if (hasOngoing) {
+      next = EventStatus.ONGOING;
+    } else if (allClosed) {
+      next = EventStatus.COMPLETED;
+    } else {
+      next = EventStatus.SCHEDULED;
+    }
+
+    if (event.status !== next) {
+      event.status = next;
+      return this.eventRepository.save(event);
+    }
+
+    return event;
   }
 }

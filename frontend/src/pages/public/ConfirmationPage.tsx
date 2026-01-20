@@ -1,7 +1,20 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "@components/common/Card";
 import { Button } from "@components/common/Button";
-import { CheckCircle, Calendar, MapPin, User, Mail, ArrowLeft } from "lucide-react";
+import {
+  CheckCircle,
+  Calendar,
+  MapPin,
+  User,
+  Mail,
+  ArrowLeft,
+  Clock,
+} from "lucide-react";
+import {
+  getSessionDisplayName,
+  formatSessionDateFull,
+  formatSessionTime,
+} from "@/utils/session.utils"; // ✅ AJOUTÉ
 import banner from "@/assets/branding/dtai-banner.png";
 import logo from "@/assets/branding/dtai-logo.png";
 import styles from "./ConfirmationPage.module.scss";
@@ -10,19 +23,9 @@ export const ConfirmationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { event, participant } = location.state || {};
+  const { event, participant, session, token } = location.state || {};
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  if (!event || !participant) {
+  if (!event || !participant || !session) {
     return (
       <div className={styles.container}>
         <div className={styles.content}>
@@ -36,7 +39,9 @@ export const ConfirmationPage = () => {
               <img className={styles.logo} src={logo} alt="DTAI" />
               <div className={styles.headerText}>
                 <h1>Confirmation</h1>
-                <p>Direction du Traitement Automatique de l’Information (DTAI)</p>
+                <p>
+                  Direction du Traitement Automatique de l'Information (DTAI)
+                </p>
               </div>
             </div>
           </div>
@@ -44,7 +49,7 @@ export const ConfirmationPage = () => {
           <Card>
             <div className={styles.errorCard}>
               <h2>Page indisponible</h2>
-              <p>Aucune information de pointage n’a été trouvée.</p>
+              <p>Aucune information de pointage n'a été trouvée.</p>
 
               <div className={styles.actions}>
                 <Button
@@ -53,7 +58,7 @@ export const ConfirmationPage = () => {
                   icon={<ArrowLeft size={18} />}
                   onClick={() => navigate("/")}
                 >
-                  Retour à l’accueil
+                  Retour à l'accueil
                 </Button>
               </div>
             </div>
@@ -62,6 +67,14 @@ export const ConfirmationPage = () => {
       </div>
     );
   }
+
+  // ✅ AJOUTÉ : Formater les infos session
+  const sessionDisplayName = getSessionDisplayName(session);
+  const sessionDateFormatted = formatSessionDateFull(session.sessionDate);
+  const sessionTimeFormatted = formatSessionTime(
+    session.startTime,
+    session.endTime
+  );
 
   return (
     <div className={styles.container}>
@@ -76,7 +89,7 @@ export const ConfirmationPage = () => {
             <img className={styles.logo} src={logo} alt="DTAI" />
             <div className={styles.headerText}>
               <h1>Pointage</h1>
-              <p>Direction du Traitement Automatique de l’Information (DTAI)</p>
+              <p>Direction du Traitement Automatique de l'Information (DTAI)</p>
             </div>
           </div>
         </div>
@@ -109,19 +122,49 @@ export const ConfirmationPage = () => {
                   </div>
                 </div>
 
+                {/* ✅ AJOUTÉ : Session */}
                 <div className={styles.detailItem}>
-                  <MapPin size={18} className={styles.detailIcon} />
+                  <Calendar size={18} className={styles.detailIcon} />
                   <div>
-                    <div className={styles.detailLabel}>Lieu</div>
-                    <div className={styles.detailValue}>{event.eventLocation}</div>
+                    <div className={styles.detailLabel}>Session</div>
+                    <div className={styles.detailValue}>
+                      {sessionDisplayName}
+                    </div>
                   </div>
                 </div>
 
+                {/* ✅ MODIFIÉ : Date session (pas event) */}
                 <div className={styles.detailItem}>
                   <Calendar size={18} className={styles.detailIcon} />
                   <div>
                     <div className={styles.detailLabel}>Date</div>
-                    <div className={styles.detailValue}>{formatDate(event.eventDate)}</div>
+                    <div className={styles.detailValue}>
+                      {sessionDateFormatted}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ✅ AJOUTÉ : Horaires session (si définis) */}
+                {sessionTimeFormatted && (
+                  <div className={styles.detailItem}>
+                    <Clock size={18} className={styles.detailIcon} />
+                    <div>
+                      <div className={styles.detailLabel}>Horaire</div>
+                      <div className={styles.detailValue}>
+                        {sessionTimeFormatted}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ✅ MODIFIÉ : Lieu session (ou event) */}
+                <div className={styles.detailItem}>
+                  <MapPin size={18} className={styles.detailIcon} />
+                  <div>
+                    <div className={styles.detailLabel}>Lieu</div>
+                    <div className={styles.detailValue}>
+                      {session.location || event.eventLocation}
+                    </div>
                   </div>
                 </div>
 
@@ -139,7 +182,9 @@ export const ConfirmationPage = () => {
                   <Mail size={18} className={styles.detailIcon} />
                   <div>
                     <div className={styles.detailLabel}>Email</div>
-                    <div className={styles.detailValue}>{participant.email}</div>
+                    <div className={styles.detailValue}>
+                      {participant.email}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -148,12 +193,21 @@ export const ConfirmationPage = () => {
             <div className={styles.notice}>
               <div className={styles.noticeTitle}>Accusé de réception</div>
               <div className={styles.noticeText}>
-                Un email de confirmation a été envoyé à <strong>{participant.email}</strong>.
+                Un email de confirmation a été envoyé à{" "}
+                <strong>{participant.email}</strong>.
               </div>
             </div>
 
             <div className={styles.actions}>
-              <Button type="button" variant="secondary" onClick={() => navigate("/pointage")}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  navigate(
+                    token ? `/pointage?token=${encodeURIComponent(token)}` : "/"
+                  )
+                }
+              >
                 Retour au pointage
               </Button>
 

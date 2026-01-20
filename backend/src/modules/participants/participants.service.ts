@@ -52,6 +52,58 @@ export class ParticipantsService {
   }
 
   /**
+   * Trouver un participant par CNI ou email (sans mise à jour)
+   */
+  async findByIdentity(participantData: CreateParticipantDto): Promise<Participant | null> {
+    if (participantData.cniNumber) {
+      const byCni = await this.participantRepository.findOne({
+        where: { cniNumber: participantData.cniNumber },
+      });
+      if (byCni) return byCni;
+    }
+
+    if (participantData.email) {
+      return this.participantRepository.findOne({
+        where: { email: participantData.email },
+      });
+    }
+
+    return null;
+  }
+
+  /**
+   * Lookup public par CNI ou email (retourne un profil limité)
+   */
+  async lookupPublic(params: { cni?: string; email?: string }) {
+    const cni = params.cni?.trim();
+    const email = params.email?.trim();
+
+    if (!cni && !email) {
+      throw new BadRequestException('CNI ou email requis');
+    }
+
+    const participant = cni
+      ? await this.participantRepository.findOne({ where: { cniNumber: cni } })
+      : await this.participantRepository.findOne({ where: { email } });
+
+    if (!participant) {
+      throw new NotFoundException('Participant introuvable');
+    }
+
+    return {
+      id: participant.id,
+      firstName: participant.firstName,
+      lastName: participant.lastName,
+      function: participant.function,
+      cniNumber: participant.cniNumber,
+      originLocality: participant.originLocality,
+      email: participant.email,
+      phone: participant.phone,
+      organization: participant.organization,
+    };
+  }
+
+  /**
    * Trouver ou créer un participant (pour le pointage)
    *
    * RÈGLE STRICTE :

@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Attendance } from './attendance.entity';
+import { Session } from './session.entity';
 
 export enum EventType {
   WORKSHOP = 'workshop',
@@ -100,4 +101,7 @@ export class Event {
 
   @OneToMany(() => Attendance, (attendance) => attendance.event)
   attendances: Attendance[];
+
+  @OneToMany(() => Session, (session) => session.event)
+  sessions: Session[];
 }

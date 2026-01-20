@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '@/database/entities';
-import { LoginDto, AuthResponseDto } from './dto';
+import { LoginDto, AuthResponseDto, UpdateProfileDto } from './dto';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 @Injectable()
@@ -96,6 +96,34 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Mettre à jour le profil de l'utilisateur connecté
+   */
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+
+    if (dto.email && dto.email !== user.email) {
+      const existingUser = await this.userRepository.findOne({
+        where: { email: dto.email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('Cet email est déjà utilisé');
+      }
+    }
+
+    Object.assign(user, dto);
+    await this.userRepository.save(user);
+
+    return this.getProfile(userId);
   }
 
   /**

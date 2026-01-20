@@ -13,6 +13,9 @@ import { EventsModule } from './modules/events/events.module';
 import { ParticipantsModule } from './modules/participants/participants.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { QrCodesModule } from './modules/qr-codes/qr-codes.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CertificatesModule } from './modules/certificates/certificates.module';
 
 @Module({
   imports: [
@@ -43,6 +46,9 @@ import { QrCodesModule } from './modules/qr-codes/qr-codes.module';
     ParticipantsModule,
     AttendancesModule,
     QrCodesModule,
+    SessionsModule,
+    NotificationsModule,
+    CertificatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

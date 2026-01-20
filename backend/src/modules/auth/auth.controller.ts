@@ -1,7 +1,7 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, Patch } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { LoginDto, AuthResponseDto } from './dto';
+import { LoginDto, AuthResponseDto, UpdateProfileDto } from './dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { User } from '@/database/entities';
 
@@ -36,6 +36,25 @@ export class AuthController {
     return {
       success: true,
       data: profile,
+    };
+  }
+
+  /**
+   * PATCH /api/auth/me
+   * Mettre à jour le profil de l'utilisateur connecté
+   */
+  @Patch('me')
+  @UseGuards(AuthGuard('jwt'))
+  async updateProfile(
+    @CurrentUser() user: User,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<{ success: boolean; data: User; message: string }> {
+    const profile = await this.authService.updateProfile(user.id, updateProfileDto);
+
+    return {
+      success: true,
+      data: profile,
+      message: 'Profil mis à jour avec succès',
     };
   }
 

@@ -269,6 +269,24 @@ export class UsersService {
   }
 
   /**
+   * Réinitialiser le mot de passe (admin uniquement)
+   */
+  async resetPassword(userId: string, newPassword: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    user.passwordHash = passwordHash;
+    await this.userRepository.save(user);
+  }
+
+  /**
    * Récupérer les statistiques d'un utilisateur
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

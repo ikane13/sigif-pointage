@@ -1,28 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@components/common/Card";
 import { Button } from "@components/common/Button";
 import { Badge } from "@components/common/Badge";
 import { Loader } from "@components/common/Loader";
 import { Modal } from "@components/common/Modal";
-import { QrCodeSection } from "@components/admin/QrCodeSection";
+import { SessionsList } from "@components/admin/SessionsList"; // ✅ NOUVEAU
+import { useSidebarContext } from "@components/layout/Sidebar/SidebarContext";
 import {
   ArrowLeft,
   Calendar,
   MapPin,
   Users,
+  User,
   Edit,
   Trash2,
   AlertTriangle,
+  Building2,
+  MoreVertical,
 } from "lucide-react";
 import { eventsService } from "@services/eventsService";
+import { authService } from "@services/authService";
 import type { Event, EventStatus, EventType } from "@/types/event.types";
 import styles from "./EventDetail.module.scss";
 
-const statusLabels: Record<
-  EventStatus,
-  { label: string; variant: "success" | "primary" | "neutral" | "danger" }
-> = {
+const statusLabels: Record<EventStatus, { label: string; variant: "success" | "primary" | "neutral" | "danger" }> = {
   scheduled: { label: "Planifié", variant: "primary" },
   ongoing: { label: "En cours", variant: "success" },
   completed: { label: "Terminé", variant: "neutral" },
@@ -52,12 +54,32 @@ export const EventDetailPage = () => {
     message: string;
     nextStatus: "ongoing" | "completed" | "cancelled";
   }>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsRef = useRef<HTMLDivElement | null>(null);
+  const { setEvent: setSidebarEvent } = useSidebarContext();
 
   useEffect(() => {
     if (id) {
       loadEvent(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!event) return;
+
+    setSidebarEvent({
+      id: event.id,
+      title: event.title,
+      status: event.status,
+      startDate: event.startDate,
+      endDate: event.endDate ?? null,
+      location: event.location,
+      organizer: event.organizer ?? null,
+      attendanceStats: event.attendanceStats,
+    });
+
+    return () => setSidebarEvent(null);
+  }, [event, setSidebarEvent]);
 
   const loadEvent = async (eventId: string) => {
     try {
@@ -78,8 +100,6 @@ export const EventDetailPage = () => {
     try {
       setDeleting(true);
       await eventsService.delete(id);
-
-      // Rediriger vers la liste
       navigate("/events");
     } catch (err: any) {
       console.error("Erreur suppression:", err);
@@ -100,8 +120,6 @@ export const EventDetailPage = () => {
       setError(null);
 
       await eventsService.updateStatus(id, nextStatus);
-
-      // Recharge l'événement pour afficher le nouveau statut
       await loadEvent(id);
     } catch (err: any) {
       console.error("Erreur changement statut:", err);
@@ -113,6 +131,29 @@ export const EventDetailPage = () => {
       setStatusModal(null);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!actionsRef.current || !actionsOpen) return;
+      if (!actionsRef.current.contains(event.target as Node)) {
+        setActionsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActionsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [actionsOpen]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
@@ -149,7 +190,15 @@ export const EventDetailPage = () => {
       </div>
     );
   }
+
   const isLocked = event.status === "completed" || event.status === "cancelled";
+  const currentUser = authService.getUser();
+  const canManage =
+    currentUser?.role === "admin" ||
+    (currentUser?.role === "organizer" &&
+      (event.createdById === currentUser.id ||
+        event.createdBy?.id === currentUser.id));
+
   return (
     <div className={styles.eventDetail}>
       <div className={styles.pageHeader}>
@@ -162,79 +211,117 @@ export const EventDetailPage = () => {
           >
             Retour
           </Button>
-          <div className={styles.actions}>
-            {event.status === "scheduled" && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  setStatusModal({
-                    title: "Démarrer l'événement ?",
-                    message:
-                      "Une fois démarré, le pointage sera autorisé pour les participants.",
-                    nextStatus: "ongoing",
-                  })
-                }
-                disabled={statusActionLoading || deleting}
-              >
-                Démarrer
-              </Button>
-            )}
-
-            {event.status === "ongoing" && (
-              <>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    setStatusModal({
-                      title: "Terminer l'événement ?",
-                      message:
-                        "Une fois terminé, le pointage ne sera plus autorisé pour cet événement.",
-                      nextStatus: "completed",
-                    })
-                  }
-                  disabled={statusActionLoading || deleting}
-                >
-                  Terminer
-                </Button>
-
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() =>
-                    setStatusModal({
-                      title: "Annuler l'événement ?",
-                      message:
-                        "Une fois annulé, le pointage ne sera plus autorisé pour cet événement.",
-                      nextStatus: "cancelled",
-                    })
-                  }
-                  disabled={statusActionLoading || deleting}
-                >
-                  Annuler
-                </Button>
-              </>
-            )}
-
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Edit size={16} />}
-              onClick={() => navigate(`/events/${id}/edit`)}
-              disabled={isLocked || statusActionLoading || deleting}
+          <div className={styles.actions} ref={actionsRef}>
+            <button
+              type="button"
+              className={styles.actionsTrigger}
+              onClick={() => setActionsOpen((prev) => !prev)}
+              aria-haspopup="menu"
+              aria-expanded={actionsOpen}
+              disabled={statusActionLoading || deleting}
+              title="Actions"
             >
-              Modifier
-            </Button>
+              <MoreVertical size={18} />
+            </button>
 
-            <Button
-              variant="danger"
-              size="sm"
-              icon={<Trash2 size={16} />}
-              onClick={() => setShowDeleteModal(true)}
-              disabled={isLocked || statusActionLoading || deleting}
-            >
-              Supprimer
-            </Button>
+            {actionsOpen && (
+              <div className={styles.actionsMenu} role="menu">
+                {canManage && event.status === "scheduled" && (
+                  <button
+                    type="button"
+                    className={styles.actionsItem}
+                    onClick={() => {
+                      setActionsOpen(false);
+                      setStatusModal({
+                        title: "Démarrer l'événement ?",
+                        message:
+                          "Une fois démarré, le pointage sera autorisé pour les participants.",
+                        nextStatus: "ongoing",
+                      });
+                    }}
+                    disabled={statusActionLoading || deleting}
+                  >
+                    Démarrer
+                  </button>
+                )}
+
+                {canManage && event.status === "ongoing" && (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.actionsItem}
+                      onClick={() => {
+                        setActionsOpen(false);
+                        setStatusModal({
+                          title: "Terminer l'événement ?",
+                          message:
+                            "Une fois terminé, le pointage ne sera plus autorisé pour cet événement.",
+                          nextStatus: "completed",
+                        });
+                      }}
+                      disabled={statusActionLoading || deleting}
+                    >
+                      Terminer
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.actionsItem} ${styles.actionsItemDanger}`}
+                      onClick={() => {
+                        setActionsOpen(false);
+                        setStatusModal({
+                          title: "Annuler l'événement ?",
+                          message:
+                            "Une fois annulé, le pointage ne sera plus autorisé pour cet événement.",
+                          nextStatus: "cancelled",
+                        });
+                      }}
+                      disabled={statusActionLoading || deleting}
+                    >
+                      Annuler
+                    </button>
+                  </>
+                )}
+
+                {canManage && (
+                  <button
+                    type="button"
+                    className={styles.actionsItem}
+                    onClick={() => {
+                      setActionsOpen(false);
+                      navigate(`/events/${id}/edit`);
+                    }}
+                    disabled={isLocked || statusActionLoading || deleting}
+                  >
+                    Modifier
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className={styles.actionsItem}
+                  onClick={() => {
+                    setActionsOpen(false);
+                    navigate(`/events/${id}/attendances`);
+                  }}
+                >
+                  Présences (toutes sessions)
+                </button>
+
+                {canManage && (
+                  <button
+                    type="button"
+                    className={`${styles.actionsItem} ${styles.actionsItemDanger}`}
+                    onClick={() => {
+                      setActionsOpen(false);
+                      setShowDeleteModal(true);
+                    }}
+                    disabled={isLocked || statusActionLoading || deleting}
+                  >
+                    Supprimer
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className={styles.pageHeaderMain}>
@@ -272,77 +359,98 @@ export const EventDetailPage = () => {
         </div>
       </div>
 
-      <div className={styles.grid}>
-        <div className={styles.mainContent}>
-          <Card header="Informations">
-            <div className={styles.infoGrid}>
+      {/* ✅ LAYOUT MODIFIÉ : Plus de grid sidebar, tout en mainContent */}
+      <div className={styles.mainContent}>
+        <Card header="Informations">
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <Calendar size={20} className={styles.infoIcon} />
+              <div>
+                <div className={styles.infoLabel}>Date de début</div>
+                <div className={styles.infoValue}>
+                  {formatDate(event.startDate)}
+                </div>
+              </div>
+            </div>
+
+            {event.endDate && (
               <div className={styles.infoItem}>
                 <Calendar size={20} className={styles.infoIcon} />
                 <div>
-                  <div className={styles.infoLabel}>Date de début</div>
+                  <div className={styles.infoLabel}>Date de fin</div>
                   <div className={styles.infoValue}>
-                    {formatDate(event.startDate)}
+                    {formatDate(event.endDate)}
                   </div>
                 </div>
-              </div>
-
-              {event.endDate && (
-                <div className={styles.infoItem}>
-                  <Calendar size={20} className={styles.infoIcon} />
-                  <div>
-                    <div className={styles.infoLabel}>Date de fin</div>
-                    <div className={styles.infoValue}>
-                      {formatDate(event.endDate)}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className={styles.infoItem}>
-                <MapPin size={20} className={styles.infoIcon} />
-                <div>
-                  <div className={styles.infoLabel}>Lieu</div>
-                  <div className={styles.infoValue}>{event.location}</div>
-                </div>
-              </div>
-
-              {event.capacity && (
-                <div className={styles.infoItem}>
-                  <Users size={20} className={styles.infoIcon} />
-                  <div>
-                    <div className={styles.infoLabel}>Capacité</div>
-                    <div className={styles.infoValue}>
-                      {event.capacity} participants
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {event.description && (
-              <div className={styles.description}>
-                <h4>Description</h4>
-                <p>{event.description}</p>
               </div>
             )}
-          </Card>
-        </div>
 
-        <div className={styles.sidebar}>
-          {isLocked ? (
-            <Card header="QR Code">
-              <p style={{ margin: 0, color: "#6C757D" }}>
-                QR Code indisponible : l’événement est{" "}
-                {event.status === "completed" ? "terminé" : "annulé"}.
-              </p>
-            </Card>
-          ) : (
-            <QrCodeSection eventId={event.id} />
+            <div className={styles.infoItem}>
+              <MapPin size={20} className={styles.infoIcon} />
+              <div>
+                <div className={styles.infoLabel}>Lieu</div>
+                <div className={styles.infoValue}>{event.location}</div>
+              </div>
+            </div>
+
+            {event.organizer && (
+              <div className={styles.infoItem}>
+                <Building2 size={20} className={styles.infoIcon} />
+                <div>
+                  <div className={styles.infoLabel}>Organisateur</div>
+                  <div className={styles.infoValue}>{event.organizer}</div>
+                </div>
+              </div>
+            )}
+
+            {event.capacity && (
+              <div className={styles.infoItem}>
+                <Users size={20} className={styles.infoIcon} />
+                <div>
+                  <div className={styles.infoLabel}>Capacité</div>
+                  <div className={styles.infoValue}>
+                    {event.capacity} participants
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(event.createdBy?.fullName ||
+              event.createdBy?.firstName ||
+              event.createdBy?.lastName ||
+              event.createdBy?.email) && (
+              <div className={styles.infoItem}>
+                <User size={20} className={styles.infoIcon} />
+                <div>
+                  <div className={styles.infoLabel}>Créé par</div>
+                  <div className={styles.infoValue}>
+                    {(
+                      event.createdBy?.fullName ||
+                      `${event.createdBy?.firstName ?? ""} ${event.createdBy?.lastName ?? ""}`.trim()
+                    ) || event.createdBy?.email}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {event.description && (
+            <div className={styles.description}>
+              <h4>Description</h4>
+              <p>{event.description}</p>
+            </div>
           )}
-        </div>
+        </Card>
+
+        {/* ✅ NOUVEAU : SessionsList remplace QrCodeSection */}
+        <SessionsList 
+          eventId={event.id}
+          eventStatus={event.status}
+          canManage={canManage}
+        />
       </div>
 
-      {/* Modal de confirmation suppression */}
+      {/* Modals - INCHANGÉS */}
       <Modal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -395,6 +503,7 @@ export const EventDetailPage = () => {
           </div>
         </div>
       </Modal>
+
       <Modal
         isOpen={!!statusModal}
         onClose={() => setStatusModal(null)}

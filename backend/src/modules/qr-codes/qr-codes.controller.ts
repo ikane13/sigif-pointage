@@ -2,23 +2,22 @@ import { Controller, Post, Get, Param, Query, Res, UseGuards } from '@nestjs/com
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { QrCodesService } from './qr-codes.service';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { UserRole } from '../../database/entities/user.entity';
+import { RolesGuard } from '@/common/guards/roles.guard';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { UserRole, SessionStatus, EventStatus } from '@/database/entities';
 
 @Controller()
 export class QrCodesController {
   constructor(private readonly qrCodesService: QrCodesService) {}
 
   /**
-   * Générer ou régénérer le QR code d'un événement
-   * POST /api/events/:id/qr-code
+   * POST /api/sessions/:id/qr-code
    */
-  @Post('events/:id/qr-code')
-  @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Passport JWT + RolesGuard
+  @Post('sessions/:id/qr-code')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
-  async generateQrCode(@Param('id') eventId: string) {
-    const result = await this.qrCodesService.generateQrCode(eventId);
+  async generateQrCode(@Param('id') sessionId: string) {
+    const result = await this.qrCodesService.generateQrCode(sessionId);
 
     return {
       success: true,
@@ -28,14 +27,13 @@ export class QrCodesController {
   }
 
   /**
-   * Obtenir les informations du QR code d'un événement
-   * GET /api/events/:id/qr-code
+   * GET /api/sessions/:id/qr-code
    */
-  @Get('events/:id/qr-code')
-  @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Passport JWT + RolesGuard
+  @Get('sessions/:id/qr-code')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
-  async getQrCodeInfo(@Param('id') eventId: string) {
-    const result = await this.qrCodesService.getQrCodeInfo(eventId);
+  async getQrCodeInfo(@Param('id') sessionId: string) {
+    const result = await this.qrCodesService.getQrCodeInfo(sessionId);
 
     return {
       success: true,
@@ -44,57 +42,76 @@ export class QrCodesController {
   }
 
   /**
-   * Télécharger le QR code (PNG ou PDF)
-   * GET /api/events/:id/qr-code/download?format=png|pdf
+   * GET /api/sessions/:id/qr-code/download?format=png|pdf
    */
-  @Get('events/:id/qr-code/download')
-  @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Passport JWT + RolesGuard
+  @Get('sessions/:id/qr-code/download')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
   async downloadQrCode(
-    @Param('id') eventId: string,
+    @Param('id') sessionId: string,
     @Query('format') format: string,
     @Res() res: Response,
   ) {
     if (format === 'pdf') {
-      const pdfStream = await this.qrCodesService.generatePdfStream(eventId);
+      const pdfStream = await this.qrCodesService.generatePdfStream(sessionId);
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="QR_Code_Event_${eventId}.pdf"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="QR_Code_Session_${sessionId}.pdf"`,
+      );
 
       pdfStream.pipe(res);
     } else {
-      const pngBuffer = await this.qrCodesService.generatePngBuffer(eventId);
+      const pngBuffer = await this.qrCodesService.generatePngBuffer(sessionId);
 
       res.setHeader('Content-Type', 'image/png');
-      res.setHeader('Content-Disposition', `attachment; filename="QR_Code_Event_${eventId}.png"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="QR_Code_Session_${sessionId}.png"`,
+      );
 
       res.send(pngBuffer);
     }
   }
 
   /**
-   * Valider un token QR code et récupérer l'événement
+   * PUBLIC
    * GET /api/qr-codes/validate/:token
-   * PUBLIC - Pas d'authentification requise
    */
+
   @Get('qr-codes/validate/:token')
   async validateToken(@Param('token') token: string) {
-    const event = await this.qrCodesService.validateToken(token);
+    const session = await this.qrCodesService.validateToken(token);
+
+    const canCheckIn =
+      session.event.status === EventStatus.ONGOING && session.status === SessionStatus.ONGOING;
 
     return {
       success: true,
       data: {
         event: {
-          id: event.id,
-          title: event.title,
-          eventType: event.eventType,
-          startDate: event.startDate,
-          endDate: event.endDate,
-          location: event.location,
-          status: event.status,
-          description: event.description,
+          id: session.event.id,
+          title: session.event.title,
+          eventType: session.event.eventType,
+          startDate: session.event.startDate,
+          endDate: session.event.endDate,
+          location: session.event.location,
+          status: session.event.status,
+          description: session.event.description,
         },
-        canCheckIn: event.status === 'scheduled' || event.status === 'ongoing',
+        session: {
+          id: session.id,
+          sessionNumber: session.sessionNumber,
+          sessionDate: session.sessionDate,
+          label: session.label,
+          title: session.title ?? null,
+          startTime: session.startTime,
+          endTime: session.endTime,
+          location: session.location,
+          status: session.status,
+        },
+        canCheckIn,
       },
     };
   }

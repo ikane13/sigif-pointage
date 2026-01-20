@@ -86,4 +86,8 @@ export class CreateAttendanceDto {
   @IsOptional()
   @MaxLength(500, { message: 'Les notes ne peuvent pas dépasser 500 caractères' })
   notes?: string;
+
+  @IsUUID('4', { message: 'ID session invalide' })
+  @IsNotEmpty({ message: "L'ID de la session est requis" })
+  sessionId: string;
 }

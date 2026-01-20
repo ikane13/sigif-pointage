@@ -1,0 +1,88 @@
+.toolbar {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.04);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  gap: 14px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.search {
+  min-width: 280px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reset {
+  display: flex;
+  justify-content: flex-end;
+
+  @media (max-width: 1100px) {
+    justify-content: flex-start;
+  }
+}
+
+.customRange {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+.nativeField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nativeLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.nativeInput {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 0 12px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+
+  &:focus {
+    border-color: rgba(0, 71, 171, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 71, 171, 0.12);
+  }
+
+  &:disabled {
+    background: #f8fafc;
+    color: #94a3b8;
+  }
+}

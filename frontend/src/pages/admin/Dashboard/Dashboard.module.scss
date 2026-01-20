@@ -1,0 +1,165 @@
+$color-dtai-blue: #0b3a82;
+$color-secondary: #0f172a;
+$color-border: #e2e8f0;
+$color-bg-light: #f8fafc;
+$color-text-muted: #64748b;
+$color-hover: #f1f5f9;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpiCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kpiIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #e8f0ff;
+  color: $color-dtai-blue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpiLabel {
+  font-size: 13px;
+  color: $color-text-muted;
+  font-weight: 600;
+}
+
+.kpiValue {
+  font-size: 22px;
+  font-weight: 800;
+  color: $color-secondary;
+}
+
+.tableWrap {
+  border: 1px solid $color-border;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead th {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid $color-border;
+    text-align: left;
+    padding: 14px 12px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-dtai-blue;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: $color-secondary;
+  }
+
+  tbody tr {
+    transition: all 0.2s;
+
+    &:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    &:hover {
+      background: $color-hover;
+      box-shadow: inset 0 0 0 1px $color-border;
+    }
+  }
+}
+
+.strong {
+  font-weight: 700;
+  color: $color-secondary;
+}
+
+.tableLink {
+  color: $color-dtai-blue;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.iconLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid #c7d6f2;
+  background: #e8f0ff;
+  color: $color-dtai-blue;
+  text-decoration: none;
+}
+
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.empty {
+  padding: 18px;
+  color: $color-text-muted;
+  text-align: left;
+}
+
+.kpiSkeleton,
+.sectionSkeleton {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.kpiSkeleton {
+  height: 92px;
+}
+
+.sectionSkeleton {
+  height: 220px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: -135% 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .tableWrap {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 700px;
+  }
+}

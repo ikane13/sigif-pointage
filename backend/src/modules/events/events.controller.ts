@@ -36,7 +36,7 @@ export class EventsController {
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createEventDto: CreateEventDto, @CurrentUser() user: User) {
-    const event = await this.eventsService.create(createEventDto, user.id);
+    const event = await this.eventsService.create(createEventDto, user);
 
     return {
       success: true,
@@ -101,8 +101,12 @@ export class EventsController {
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateEventDto: UpdateEventDto) {
-    const event = await this.eventsService.update(id, updateEventDto);
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @CurrentUser() user: User,
+  ) {
+    const event = await this.eventsService.update(id, updateEventDto, user);
 
     return {
       success: true,
@@ -119,8 +123,8 @@ export class EventsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
-    await this.eventsService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    await this.eventsService.remove(id, user);
 
     return {
       success: true,
@@ -129,7 +133,13 @@ export class EventsController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateEventStatusDto) {
-    return this.eventsService.updateStatus(id, dto);
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
+  updateStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateEventStatusDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.eventsService.updateStatus(id, dto, user);
   }
 }

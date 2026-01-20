@@ -1,0 +1,33 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat {
+  border: 1px solid #eef2f7;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0b3a82;
+  line-height: 1.1;
+}
+
+.label {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #64748b;
+}

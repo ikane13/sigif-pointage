@@ -1,0 +1,148 @@
+$color-dtai-blue: #0b3a82;
+$color-secondary: #0f172a;
+$color-border: #e2e8f0;
+$color-bg-light: #f8fafc;
+$color-text-muted: #64748b;
+$color-hover: #f1f5f9;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid $color-border;
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: $color-dtai-blue;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: $color-text-muted;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: $color-bg-light;
+  border-radius: 8px;
+
+  svg {
+    color: $color-dtai-blue;
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  background: #ffffff;
+  color: $color-secondary;
+
+  svg {
+    color: $color-dtai-blue;
+  }
+}
+
+.tableWrap {
+  border: 1px solid $color-border;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead th {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid $color-border;
+    text-align: left;
+    padding: 14px 12px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-dtai-blue;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: $color-secondary;
+  }
+
+  tbody tr {
+    transition: all 0.2s;
+
+    &:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    &:hover {
+      background: $color-hover;
+      box-shadow: inset 0 0 0 1px $color-border;
+    }
+  }
+}
+
+.strong {
+  font-weight: 700;
+  color: $color-secondary;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: $color-text-muted;
+  font-style: italic;
+  font-size: 14px;
+}

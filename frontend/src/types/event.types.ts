@@ -1,7 +1,8 @@
+import type { Session } from './session.types';
+
 export enum EventType {
   WORKSHOP = 'workshop',
   TRAINING = 'training',
-  // CONFERENCE = 'conference',
   COMMITTEE = 'committee',
   SEMINAR = 'seminar',
   MEETING = 'meeting',
@@ -26,13 +27,28 @@ export interface Event {
   organizer?: string;
   capacity?: number;
   status: EventStatus;
-  qrToken?: string;
-  qrGeneratedAt?: string;
-  qrScanCount?: number;
+  attendanceStats?: {
+    total: number;
+    withSignature: number;
+    withoutSignature: number;
+  };
+  qrToken?: string; // ⚠️ Déprécié (migré vers sessions)
+  qrGeneratedAt?: string; // ⚠️ Déprécié
+  qrScanCount?: number; // ⚠️ Déprécié
+  sessions?: Session[]; // ✅ NOUVEAU : Liste des sessions
+  createdById?: string | null;
+  createdBy?: {
+    id?: string;
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
 
+// ⚠️ QrCodeInfo maintenant lié aux sessions (pas aux events)
 export interface QrCodeInfo {
   token: string;
   generatedAt: string;

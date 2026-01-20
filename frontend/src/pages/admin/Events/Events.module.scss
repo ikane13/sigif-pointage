@@ -1,27 +1,71 @@
+// ============================================
+// VARIABLES (alignées sur Participants)
+// ============================================
+
+$color-dtai-blue: #0b3a82;
+$color-secondary: #0f172a;
+$color-border: #e2e8f0;
+$color-bg-light: #f8fafc;
+$color-text-muted: #64748b;
+$color-hover: #f1f5f9;
+
+// ============================================
+// LAYOUT
+// ============================================
+
 .eventsPage {
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
+// ============================================
+// HEADER (style participants)
+// ============================================
 
-    .subtitle {
-      color: #6C757D;
-      font-size: 0.875rem;
-    }
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid $color-border;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: $color-dtai-blue;
+    letter-spacing: -0.02em;
   }
+}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
+.headerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
   }
+}
+
+.subtitle {
+  color: $color-text-muted;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+}
+
+// ============================================
+// GRID
+// ============================================
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
 }
 
 .eventCard {
@@ -29,14 +73,21 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    margin-bottom: 12px;
 
     h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
       margin: 0;
       flex: 1;
+      color: $color-secondary;
     }
+  }
+
+  .cardHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .cardBody {
@@ -48,20 +99,82 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.875rem;
-      color: #6C757D;
+      font-size: 13px;
+      color: $color-text-muted;
 
       svg {
         flex-shrink: 0;
+        color: $color-dtai-blue;
       }
     }
   }
+}
 
-  .qrBadge {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #E9ECEF;
+// ============================================
+// MENU CONTEXTUEL
+// ============================================
+
+.menuWrapper {
+  position: relative;
+}
+
+.menuTrigger {
+  height: 32px;
+  width: 32px;
+  border-radius: 8px;
+  border: 1px solid #c7d6f2;
+  background: #e8f0ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b3a82;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #dbe7ff;
+    border-color: #b8ccf3;
   }
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 230px;
+  background: #ffffff;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+  z-index: 10;
+}
+
+.menuItem {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: $color-secondary;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: $color-hover;
+  }
+}
+
+// ============================================
+// EMPTY / LOADING
+// ============================================
+
+.emptyFiltered {
+  padding: 18px;
+  color: $color-text-muted;
+  text-align: left;
 }
 
 .centered {
